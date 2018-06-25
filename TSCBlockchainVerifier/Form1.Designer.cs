@@ -43,6 +43,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.ResultTextBox = new System.Windows.Forms.TextBox();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // openFileDialog1
@@ -117,8 +119,9 @@
             this.TX1TextBox.Location = new System.Drawing.Point(212, 122);
             this.TX1TextBox.MaxLength = 512;
             this.TX1TextBox.Name = "TX1TextBox";
-            this.TX1TextBox.Size = new System.Drawing.Size(770, 32);
+            this.TX1TextBox.Size = new System.Drawing.Size(703, 32);
             this.TX1TextBox.TabIndex = 6;
+            this.TX1TextBox.TextChanged += new System.EventHandler(this.TX1TextBox_TextChanged);
             // 
             // label5
             // 
@@ -136,8 +139,9 @@
             this.TX2TextBox.Location = new System.Drawing.Point(212, 168);
             this.TX2TextBox.MaxLength = 512;
             this.TX2TextBox.Name = "TX2TextBox";
-            this.TX2TextBox.Size = new System.Drawing.Size(770, 32);
+            this.TX2TextBox.Size = new System.Drawing.Size(703, 32);
             this.TX2TextBox.TabIndex = 8;
+            this.TX2TextBox.TextChanged += new System.EventHandler(this.TX2TextBox_TextChanged);
             // 
             // button2
             // 
@@ -180,14 +184,14 @@
             this.ResultTextBox.Multiline = true;
             this.ResultTextBox.Name = "ResultTextBox";
             this.ResultTextBox.ReadOnly = true;
-            this.ResultTextBox.Size = new System.Drawing.Size(867, 98);
+            this.ResultTextBox.Size = new System.Drawing.Size(867, 185);
             this.ResultTextBox.TabIndex = 12;
             this.ResultTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(811, 440);
+            this.linkLabel1.Location = new System.Drawing.Point(811, 514);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(171, 13);
             this.linkLabel1.TabIndex = 13;
@@ -195,11 +199,37 @@
             this.linkLabel1.Text = "ตรวจสอบข้อมูลบล็อกเชนด้วยตัวเอง";
             this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
+            // button3
+            // 
+            this.button3.Enabled = false;
+            this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.button3.Location = new System.Drawing.Point(921, 122);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(71, 32);
+            this.button3.TabIndex = 14;
+            this.button3.Text = "DGB";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // button4
+            // 
+            this.button4.Enabled = false;
+            this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.button4.Location = new System.Drawing.Point(921, 168);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(71, 32);
+            this.button4.TabIndex = 15;
+            this.button4.Text = "DGB";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(994, 462);
+            this.ClientSize = new System.Drawing.Size(994, 536);
+            this.Controls.Add(this.button4);
+            this.Controls.Add(this.button3);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.ResultTextBox);
             this.Controls.Add(this.label2);
@@ -238,6 +268,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox ResultTextBox;
         private System.Windows.Forms.LinkLabel linkLabel1;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button4;
     }
 }
 

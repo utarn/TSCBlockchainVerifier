@@ -41,6 +41,9 @@ namespace TSCBlockchainVerifier
             try
             {
                 var data = File.ReadAllBytes(openFileDialog1.FileName);
+                dataHash = CalculateHash(data);
+                dataHash = CalculateHash(data);
+                dataHash = CalculateHash(data);
                 if (SignTextBox.Text.Trim().Length > 0)
                 {
                     var noteByte = Encoding.UTF8.GetBytes(SignTextBox.Text);
@@ -79,28 +82,64 @@ namespace TSCBlockchainVerifier
         }
 
         private string ServerKey = "DCzmzkMBqEz2tLn47W9YuNAV9cFzuWCydW";
-        private string Key1, newKey1;
-        private string Key2, newKey2;
-        private bool IsValid1 = false;
-        private bool IsValid2 = false;
-        private bool IsKeyValid = false;
-        private bool IsTimeValid = false;
+
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("https://digiexplorer.info");
         }
 
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Process.Start($"https://digiexplorer.info/tx/{TX1TextBox.Text.Trim()}");
+        }
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Process.Start($"https://digiexplorer.info/tx/{TX2TextBox.Text.Trim()}");
+        }
+        private void TX1TextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(TX1TextBox.Text) && TX1TextBox.Text.Length == 64 && OnlyHexInString(TX1TextBox.Text))
+            {
+                button3.Enabled = true;
+            }
+            else
+            {
+                button3.Enabled = false;
+            }
+        }
+
+        private void TX2TextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(TX2TextBox.Text) && TX2TextBox.Text.Length == 64 && OnlyHexInString(TX2TextBox.Text))
+            {
+                button4.Enabled = true;
+            }
+            else
+            {
+                button4.Enabled = false;
+            }
+        }
+
         private DateTime BlockTime, BlockTime2;
 
         private async void button2_Click(object sender, EventArgs e)
         {
+            string Key1 = "a", newKey1 = "b";
+            string Key2 = "c", newKey2 = "d";
+            bool IsValid1 = false;
+            bool IsValid2 = false;
+            string role = "g";
+            string userId = "h";
+            int? signId = null;
+
             string resultString = "";
             var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.BaseAddress = new Uri("https://digiexplorer.info/api/");
 
+            string blockvalue1 = "e", blockvalue2 = "f";
             try
             {
                 var response = await client.GetAsync($"tx/{TX1TextBox.Text}");
@@ -108,17 +147,30 @@ namespace TSCBlockchainVerifier
 
                 string responseBody = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<RawTransaction>(responseBody);
-                if (result.vout.First(v => v.scriptPubKey.asm.Contains("OP_RETURN")).scriptPubKey.hex.Contains(finalString))
+                var matchResult = result.vout.FirstOrDefault(v => v.scriptPubKey.asm.Contains("OP_RETURN"));
+                string blockvalue = "";
+                if (matchResult != null)
+                {
+                    blockvalue = matchResult.scriptPubKey.hex;
+                    blockvalue1 = blockvalue;
+                }
+
+                if (blockvalue.Contains(finalString))
                 {
                     IsValid1 = true;
                     Key1 = result.vin.First().addr;
                     Key2 = result.vout.First(v => v.scriptPubKey.asm.Contains("OP_EQUALVERIFY")).scriptPubKey.addresses.First();
                     BlockTime = new DateTime(1970, 1, 1).AddSeconds(result.blocktime);
+
+
+                    blockvalue = blockvalue.Replace(finalString, "");
+                    role = blockvalue.Substring(blockvalue.Length - 2, 2);
+                    userId = blockvalue.Substring(blockvalue.Length - 34, 32);
+                    signId = int.Parse(blockvalue.Substring(blockvalue.Length - 36, 2), System.Globalization.NumberStyles.HexNumber); 
                 }
             }
             catch (Exception)
             {
-                resultString = "";
             }
 
             try
@@ -128,7 +180,15 @@ namespace TSCBlockchainVerifier
 
                 string responseBody = await response2.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<RawTransaction>(responseBody);
-                if (result.vout.First(v => v.scriptPubKey.asm.Contains("OP_RETURN")).scriptPubKey.hex.Contains(finalString))
+                var matchResult = result.vout.FirstOrDefault(v => v.scriptPubKey.asm.Contains("OP_RETURN"));
+                string blockvalue = "";
+                if (matchResult != null)
+                {
+                    blockvalue = matchResult.scriptPubKey.hex;
+                    blockvalue2 = blockvalue;
+                }
+
+                if (blockvalue.Contains(finalString))
                 {
                     IsValid2 = true;
                     newKey1 = result.vin.First().addr;
@@ -139,52 +199,56 @@ namespace TSCBlockchainVerifier
             }
             catch (Exception)
             {
-                resultString = "";
             }
 
-            if (BlockTime == BlockTime2)
+            if (blockvalue1 == blockvalue2)
             {
-                IsTimeValid = true;
+                resultString += "รหัสธุรกรรมที่กรอกเป็นรหัสธุรกรรมคู่กัน";
             }
-            if (Key1 == newKey2 && Key2 == newKey1)
+            else
             {
-                IsKeyValid = true;
+                resultString += "รหัสธุรกรรมที่กรอกไม่ได้เป็นรหัสธุรกรรมคู่กัน";
+                goto Show;
             }
             if (!IsValid1 || !IsValid2)
             {
                 resultString += "รหัสธุรกรรมอย่างน้อย 1 ธุรกรรมไม่ตรงกับการเซ็น\r\n";
+                goto Show;
             }
-            else
-            {
-                if (IsTimeValid)
-                {
-                    resultString += $"ข้อมูลอยู่ในบล็อกเชนเวลา {BlockTime.ToString("d MMMM yyyy HH:mm:ssน.", new System.Globalization.CultureInfo("th-TH"))}\r\n";
-                }
 
-                if (IsKeyValid)
+            if (Key1 == newKey2 && Key2 == newKey1)
+            {
+                resultString += $"ข้อมูลอยู่ในบล็อกเชนเวลา {BlockTime.ToString("d MMMM yyyy HH:mm:ssน.", new System.Globalization.CultureInfo("th-TH"))}\r\n";
+                if (Key1 == ServerKey || Key2 == ServerKey)
                 {
-                    if (Key1 == ServerKey || Key2 == ServerKey)
-                    {
-                        resultString += "ธุรกรรมทำกับระบบไทยสมาร์ทคอนแทรค\r\n";
-                    }
-                    if (Key1 == ServerKey)
-                    {
-                        resultString += $"กุญแจสาธารณะของผู้เซ็นคือ {Key2}\r\n";
-                    }
-                    else
-                    {
-                        resultString += $"กุญแจสาธารณะของผู้เซ็นคือ {Key1}\r\n";
-                    }
+                    resultString += "ธุรกรรมทำกับระบบไทยสมาร์ทคอนแทรค\r\n";
+                }
+                if (signId.HasValue)
+                {
+                    resultString += $"รหัสการเซ็นที่ {signId.Value}\r\n";
+                    resultString += $"รหัสบัญชีผู้ใช้ {userId}\r\n";
+                }
+                if (Key1 == ServerKey)
+                {
+                    resultString += $"กุญแจสาธารณะของผู้เซ็นคือ {Key2}\r\n";
                 }
                 else
                 {
-                    resultString += "ธุรกรรมไม่ได้กระทำโดยผู้เซ็นคนเดียวกัน\r\n";
+                    resultString += $"กุญแจสาธารณะของผู้เซ็นคือ {Key1}\r\n";
                 }
-
             }
 
+
+            Show:
             ResultTextBox.Text = resultString;
         }
+
+        public bool OnlyHexInString(string test)
+        {
+            // For C-style hex notation (0xFF) you can use @"\A\b(0[xX])?[0-9a-fA-F]+\b\Z"
+            return System.Text.RegularExpressions.Regex.IsMatch(test, @"\A\b[0-9a-fA-F]+\b\Z");
+        }
+
     }
 
     public class RawTransaction
